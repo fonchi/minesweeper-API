@@ -12,6 +12,11 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    /**
+     * finds user by id
+     * @param id
+     * @return
+     */
     @Override
     public User getUser(String id) {
         return null;

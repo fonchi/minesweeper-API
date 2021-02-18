@@ -47,12 +47,10 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Board revealCell(String userId, String boardId, int rowNumber, int colNumber) {
 
-        //finds user by id
         User user = userService.getUser(userId);
         if (isNull(user))
             throw new NotFoundException("User '" + userId + "' not found");
 
-        //finds board by id
         Board board = getBoard(boardId);
         if (isNull(board))
             throw new NotFoundException("Board '" + boardId + "' not found");
@@ -71,6 +69,11 @@ public class BoardServiceImpl implements BoardService {
         return null;
     }
 
+    /**
+     * finds board by id
+     * @param id
+     * @return
+     */
     @Override
     public Board getBoard(String id) {
         return null;
