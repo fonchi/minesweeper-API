@@ -37,3 +37,8 @@ You need to fully complete the challenge. We suggest not spending more than 5 da
 What we want to see is how well you handle yourself given the time you spend on the problem, how you think, and how you prioritize when time is sufficient to solve everything.
 
 Please email your solution as soon as you have completed the challenge or the time is up.
+
+## Resolution
+
+### Technical Design
+[Link to Doc](https://docs.google.com/document/d/1GO_OFCjk53R5oiUwtmjPYFcKrSu7DgZMuKycSv0OSEc/edit?usp=sharing)
