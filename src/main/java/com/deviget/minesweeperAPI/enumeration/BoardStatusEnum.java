@@ -6,10 +6,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum BoardStatusEnum {
-    CREATED("Created"),
-    STARTED("Started"),
-    OVER("Over"),
-    WON("Won");
+    NEW("new"),
+    PLAYING("playing"),
+    LOST("lost"),
+    WON("won");
 
     private String value;
 }

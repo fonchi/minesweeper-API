@@ -4,13 +4,13 @@ import com.deviget.minesweeperAPI.domain.Board;
 
 public interface BoardService {
 
-    Board createBoard(String userId, int rowSize, int colSize, int minesAmount);
+    Board createBoard(String username, int rowSize, int colSize, int minesAmount);
 
-    Board revealCell(String userId, String boardId, int rowNumber, int colNumber);
+    Board revealCell(String username, String boardId, int rowNumber, int colNumber);
 
-    Board addFlag(String userId, int rowNumber, int colNumber);
+    Board flagCell(String username, String boardId, int rowNumber, int colNumber);
 
-    Board getBoard(String id);
+    Board getBoardByIdAndUsername(String id, String username);
 
     Board saveBoard(Board board);
 }

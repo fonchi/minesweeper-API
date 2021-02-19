@@ -12,8 +12,9 @@ public class BoardLock implements AutoCloseable {
     private LockService lockService;
     private List<Lock> locks = new ArrayList<>();
 
-    public BoardLock(Board boar) {
-        locks.add(lockService.lock(boar.getId()));
+    public BoardLock lock(Board board) {
+        locks.add(lockService.lock(board.getId()));
+        return this;
     }
 
     @Override

@@ -1,14 +1,13 @@
 package com.deviget.minesweeperAPI.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class Position {
 
     private int row;

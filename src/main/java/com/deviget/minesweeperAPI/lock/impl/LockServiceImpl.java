@@ -11,13 +11,14 @@ public class LockServiceImpl implements LockService {
 
     @Override
     public BoardLock lock(Board board) {
-        return new BoardLock(board);
+        BoardLock boardLock = new BoardLock();
+        return boardLock.lock(board);
     }
 
     @Override
     public Lock lock(String resourceId) {
         //TODO
-        return null;
+        return new Lock(resourceId);
     }
 
     @Override
