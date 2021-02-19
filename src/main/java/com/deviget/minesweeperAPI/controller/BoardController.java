@@ -1,10 +1,11 @@
 package com.deviget.minesweeperAPI.controller;
 
 import com.deviget.minesweeperAPI.domain.Board;
-import com.deviget.minesweeperAPI.dto.BoardPostRequestDto;
-import com.deviget.minesweeperAPI.dto.BoardPostResponseDto;
-import com.deviget.minesweeperAPI.dto.RevealFlagPostRequestDto;
-import com.deviget.minesweeperAPI.dto.RevealFlagPostResponseDto;
+import com.deviget.minesweeperAPI.dto.BoardRequestDto;
+import com.deviget.minesweeperAPI.dto.BoardResponseDto;
+import com.deviget.minesweeperAPI.dto.RevealFlagRequestDto;
+import com.deviget.minesweeperAPI.dto.RevealFlagResponseDto;
+import com.deviget.minesweeperAPI.error.ServerException;
 import com.deviget.minesweeperAPI.service.BoardService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,67 +26,76 @@ public class BoardController {
     @Autowired
     BoardService boardService;
 
-    @RequestMapping(value = "/users/{user_id}/boards", method = RequestMethod.POST)
-    public ResponseEntity<?> createBoard(@PathVariable("user_id") @NotBlank String userId,
-                                         @RequestBody @Valid BoardPostRequestDto dto) {
+    @RequestMapping(value = "/users/{username}/boards", method = RequestMethod.POST)
+    public ResponseEntity<?> createBoard(@PathVariable("username") @NotBlank String username,
+                                         @RequestBody @Valid BoardRequestDto dto) {
 
-        logger.info("userId: " + userId);
-        logger.info("BoardPostRequestDto: " + dto.toString());
+        logger.info("username: " + username);
+        logger.info("BoardRequestDto: " + dto.toString());
 
-        Board board = boardService.createBoard(userId, dto.getRowSize(), dto.getColSize(), dto.getMinesAmount());
-        if (isNull(board)) {
-            logger.info("Board is " + board);
-            return ResponseEntity.status(500).body("Error to create board");
-        }
+        Board board = boardService.createBoard(username, dto.getRowSize(), dto.getColSize(), dto.getMinesAmount());
+        if (isNull(board))
+            throw new ServerException("Error to create board");
         logger.info("Board created: " + board.toString());
         board.drawGrid();
 
-        BoardPostResponseDto responseDto = BoardPostResponseDto.fromEntity(board);
-        logger.info("BoardPostResponseDto: " + responseDto);
+        BoardResponseDto responseDto = BoardResponseDto.fromEntity(board);
+        logger.info("BoardResponseDto: " + responseDto);
         return ResponseEntity.ok(responseDto);
     }
 
-    @RequestMapping(value = "/users/{user_id}/boards/{board_id}/reveals", method = RequestMethod.POST)
-    public ResponseEntity<?> revealCell(@PathVariable("user_id") @NotBlank String userId,
+    @RequestMapping(value = "/users/{username}/boards/{board_id}/reveals", method = RequestMethod.POST)
+    public ResponseEntity<?> revealCell(@PathVariable("username") @NotBlank String username,
                                         @PathVariable("board_id") @NotBlank String boardId,
-                                        @RequestBody @Valid RevealFlagPostRequestDto dto) {
+                                        @RequestBody @Valid RevealFlagRequestDto dto) {
 
-        logger.info("userId: " + userId);
-        logger.info("boardId: " + userId);
-        logger.info("RevealFlagPostRequestDto: " + dto.toString());
+        logger.info("username: " + username);
+        logger.info("boardId: " + boardId);
+        logger.info("RevealFlagRequestDto: " + dto.toString());
 
-        Board board = boardService.revealCell(userId, boardId, dto.getSelectedRowNum(), dto.getSelectedColNum());
-        if (isNull(board)) {
-            logger.info("Board is " + board);
-            return ResponseEntity.status(500).body("Error to reveal board cell");
-        }
+        Board board = boardService.revealCell(username, boardId, dto.getSelectedRowNum(), dto.getSelectedColNum());
+        if (isNull(board))
+            throw new ServerException("Error to reveal board cell");
         logger.info("Board revealed: " + board.toString());
         board.drawGrid();
 
-        RevealFlagPostResponseDto responseDto = RevealFlagPostResponseDto.fromEntity(board);
-        logger.info("RevealFlagPostResponseDto: " + responseDto);
+        RevealFlagResponseDto responseDto = RevealFlagResponseDto.fromEntity(board);
+        logger.info("RevealFlagResponseDto: " + responseDto);
         return ResponseEntity.ok(responseDto);
     }
 
-    @RequestMapping(value = "/users/{user_id}/boards/{board_id}/flags", method = RequestMethod.POST)
-    public ResponseEntity<?> flagCell(@PathVariable("user_id") @NotBlank String userId,
+    @RequestMapping(value = "/users/{username}/boards/{board_id}/flags", method = RequestMethod.POST)
+    public ResponseEntity<?> flagCell(@PathVariable("username") @NotBlank String username,
                                       @PathVariable("board_id") @NotBlank String boardId,
-                                      @RequestBody @Valid RevealFlagPostRequestDto dto) {
+                                      @RequestBody @Valid RevealFlagRequestDto dto) {
 
-        logger.info("userId: " + userId);
-        logger.info("boardId: " + userId);
-        logger.info("RevealFlagPostRequestDto: " + dto.toString());
+        logger.info("username: " + username);
+        logger.info("boardId: " + boardId);
+        logger.info("RevealFlagRequestDto: " + dto.toString());
 
-        Board board = boardService.flagCell(userId, boardId, dto.getSelectedRowNum(), dto.getSelectedColNum());
-        if (isNull(board)) {
-            logger.info("Board is " + board);
-            return ResponseEntity.status(500).body("Error to flag board cell");
-        }
+        Board board = boardService.flagCell(username, boardId, dto.getSelectedRowNum(), dto.getSelectedColNum());
+        if (isNull(board))
+            throw new ServerException("Error to flag board cell");
         logger.info("Board flagged: " + board.toString());
         board.drawGrid();
 
-        RevealFlagPostResponseDto responseDto = RevealFlagPostResponseDto.fromEntity(board);
-        logger.info("RevealFlagPostResponseDto: " + responseDto);
+        RevealFlagResponseDto responseDto = RevealFlagResponseDto.fromEntity(board);
+        logger.info("RevealFlagResponseDto: " + responseDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @RequestMapping(value = "/users/{username}/boards/{board_id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getBoard(@PathVariable("username") @NotBlank String username,
+                                      @PathVariable("board_id") @NotBlank String boardId) {
+
+        logger.info("username: " + username);
+        logger.info("boardId: " + boardId);
+
+        Board board = boardService.getBoardByIdAndUsername(boardId, username);
+        logger.info("Board: " + board.toString());
+
+        BoardResponseDto responseDto = BoardResponseDto.fromEntity(board);
+        logger.info("BoardResponseDto: " + responseDto);
         return ResponseEntity.ok(responseDto);
     }
 

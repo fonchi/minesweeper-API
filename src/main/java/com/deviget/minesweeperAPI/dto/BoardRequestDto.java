@@ -10,7 +10,7 @@ import javax.validation.constraints.Min;
 @Getter
 @NoArgsConstructor
 @ToString
-public class BoardPostRequestDto {
+public class BoardRequestDto {
 
     @Min(value = 1, message = "row_size should not be less than 1")
     @JsonProperty("row_size")

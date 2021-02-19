@@ -4,7 +4,7 @@ import com.deviget.minesweeperAPI.domain.User;
 
 public interface UserService {
 
-    User createUser(User user);
+    User createUser(String username, String email, String password);
 
     User getUser(String id);
 }
