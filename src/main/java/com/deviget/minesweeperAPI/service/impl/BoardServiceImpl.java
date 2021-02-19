@@ -9,6 +9,7 @@ import com.deviget.minesweeperAPI.enumeration.CellStatusEnum;
 import com.deviget.minesweeperAPI.error.BadRequestException;
 import com.deviget.minesweeperAPI.error.NotFoundException;
 import com.deviget.minesweeperAPI.lock.LockService;
+import com.deviget.minesweeperAPI.repository.BoardRepository;
 import com.deviget.minesweeperAPI.service.BoardService;
 import com.deviget.minesweeperAPI.service.UserService;
 import com.deviget.minesweeperAPI.util.UniqueIdGenerator;
@@ -33,9 +34,8 @@ public class BoardServiceImpl implements BoardService {
     private UserService userService;
     @Autowired
     private LockService lockService;
-
-    //temporaly memory var to tests (deprecate after persistency implemented)
-    private Board savedBoard;
+    @Autowired
+    private BoardRepository boardRepository;
 
     @Override
     public Board createBoard(String username, int rowSize, int colSize, int minesAmount) {
@@ -91,7 +91,7 @@ public class BoardServiceImpl implements BoardService {
         Cell cell = board.getGrid().get(new Position(rowNumber, colNumber));
         if (!cell.isFlagged()) {
             cell.setStatus(CellStatusEnum.FLAGGED);
-            board = saveBoard(board);
+            saveBoard(board);
         }
 //        }
 
@@ -106,13 +106,13 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public Board getBoardByIdAndUsername(String id, String username) {
-        return savedBoard;
+        User user = getUser(username);
+        return boardRepository.findByIdAndUserId(id, user.getId());
     }
 
     @Override
     public Board saveBoard(Board board) {
-        savedBoard = board;
-        return board;
+        return boardRepository.save(board);
     }
 
     /**
@@ -243,12 +243,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     private User getUser(String username) {
-
-        User user = userService.getUser(username);
-        if (isNull(user))
-            throw new NotFoundException(String.format("User '%s' not found", username));
-        logger.info(String.format("user finded:  %s", user.toString()));
-        return user;
+        return userService.getUserByUsername(username);
     }
 
     private Board getBoard(String boardId, User user) {
