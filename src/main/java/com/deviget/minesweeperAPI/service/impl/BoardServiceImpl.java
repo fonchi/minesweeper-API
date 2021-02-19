@@ -2,13 +2,13 @@ package com.deviget.minesweeperAPI.service.impl;
 
 import com.deviget.minesweeperAPI.domain.Board;
 import com.deviget.minesweeperAPI.domain.Cell;
-import com.deviget.minesweeperAPI.domain.Position;
 import com.deviget.minesweeperAPI.domain.User;
 import com.deviget.minesweeperAPI.enumeration.BoardStatusEnum;
 import com.deviget.minesweeperAPI.enumeration.CellStatusEnum;
 import com.deviget.minesweeperAPI.error.BadRequestException;
 import com.deviget.minesweeperAPI.error.NotFoundException;
 import com.deviget.minesweeperAPI.lock.LockService;
+import com.deviget.minesweeperAPI.repository.BoardRepository;
 import com.deviget.minesweeperAPI.service.BoardService;
 import com.deviget.minesweeperAPI.service.UserService;
 import com.deviget.minesweeperAPI.util.UniqueIdGenerator;
@@ -33,9 +33,8 @@ public class BoardServiceImpl implements BoardService {
     private UserService userService;
     @Autowired
     private LockService lockService;
-
-    //temporaly memory var to tests (deprecate after persistency implemented)
-    private Board savedBoard;
+    @Autowired
+    private BoardRepository boardRepository;
 
     @Override
     public Board createBoard(String username, int rowSize, int colSize, int minesAmount) {
@@ -64,8 +63,7 @@ public class BoardServiceImpl implements BoardService {
         if (board.wasWon() || board.wasLost())
             return board;
         board.start();
-        Position selectedPos = new Position(rowNumber, colNumber);
-        revealCell(board, selectedPos);
+        revealCell(board, rowNumber, colNumber);
 //        }
         logger.info(String.format("board after revealCell: %s", board.toString()));
 
@@ -88,10 +86,11 @@ public class BoardServiceImpl implements BoardService {
 
         //locks board using try with resources
 //        try (BoardLock lock = lockService.lock(board)) {
-        Cell cell = board.getGrid().get(new Position(rowNumber, colNumber));
+        String cellKey = Cell.getKey(rowNumber, colNumber);
+        Cell cell = board.getGrid().get(cellKey);
         if (!cell.isFlagged()) {
             cell.setStatus(CellStatusEnum.FLAGGED);
-            board = saveBoard(board);
+            saveBoard(board);
         }
 //        }
 
@@ -106,13 +105,13 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public Board getBoardByIdAndUsername(String id, String username) {
-        return savedBoard;
+        User user = getUser(username);
+        return boardRepository.findByIdAndUserId(id, user.getId());
     }
 
     @Override
     public Board saveBoard(Board board) {
-        savedBoard = board;
-        return board;
+        return boardRepository.save(board);
     }
 
     /**
@@ -145,13 +144,13 @@ public class BoardServiceImpl implements BoardService {
      * @param colSize
      * @return
      */
-    private Map<Position, Cell> createGrid(int rowSize, int colSize) {
+    private Map<String, Cell> createGrid(int rowSize, int colSize) {
 
-        Map<Position, Cell> grid = new LinkedHashMap<>();
+        Map<String, Cell> grid = new LinkedHashMap<>();
         for (int i = 0; i < rowSize; i++) {
             for (int j = 0; j < colSize; j++) {
-                Position pos = new Position(i, j);
-                grid.put(pos, Cell.newHidden(pos));
+                String key = Cell.getKey(i, j);
+                grid.put(key, Cell.newHidden(i, j));
             }
         }
         return grid;
@@ -170,13 +169,13 @@ public class BoardServiceImpl implements BoardService {
             //generate a random number between 0 and size - 1
             int randomRow = random.nextInt(board.getRowSize());
             int randomCol = random.nextInt(board.getColSize());
-            Position position = new Position(randomRow, randomCol);
-            Cell cell = board.getGrid().get(position);
+            String key = Cell.getKey(randomRow, randomCol);
+            Cell cell = board.getGrid().get(key);
             if (cell.isMined())
                 continue;
             cell.setMined(true);
             cell.setMinesAround(0);
-            calculateMinesAround(board, position);
+            calculateMinesAround(board, randomRow, randomCol);
             minesPlaced++;
         }
     }
@@ -185,15 +184,17 @@ public class BoardServiceImpl implements BoardService {
      * calculates mines around of cell
      *
      * @param board
-     * @param position
+     * @param row
+     * @param col
      */
-    private void calculateMinesAround(Board board, Position position) {
+    private void calculateMinesAround(Board board, int row, int col) {
 
-        for (int nearRow = Math.max(0, position.getRow() - 1); nearRow <= Math.min(position.getRow() + 1, board.getRowSize() - 1); nearRow++) {
-            for (int nearCol = Math.max(0, position.getCol() - 1); nearCol <= Math.min(position.getCol() + 1, board.getColSize() - 1); nearCol++) {
-                Position nearPosition = new Position(nearRow, nearCol);
-                if (!board.getGrid().get(nearPosition).isMined()) {
-                    board.getGrid().get(nearPosition).incrementMinesAround();
+        for (int nearbyRow = Math.max(0, row - 1); nearbyRow <= Math.min(row + 1, board.getRowSize() - 1); nearbyRow++) {
+            for (int nearbyCol = Math.max(0, col - 1); nearbyCol <= Math.min(col + 1, board.getColSize() - 1); nearbyCol++) {
+                String nearbyCellKey = Cell.getKey(nearbyRow, nearbyCol);
+                Cell nearbyCell = board.getGrid().get(nearbyCellKey);
+                if (!nearbyCell.isMined()) {
+                    nearbyCell.incrementMinesAround();
                 }
             }
         }
@@ -203,11 +204,13 @@ public class BoardServiceImpl implements BoardService {
      * recursive function to reveal selected cell and adjacents if they applied
      *
      * @param board
-     * @param position
+     * @param row
+     * @param col
      */
-    private void revealCell(Board board, Position position) {
+    private void revealCell(Board board, int row, int col) {
 
-        Cell cell = board.getGrid().get(position);
+        String cellKey = Cell.getKey(row, col);
+        Cell cell = board.getGrid().get(cellKey);
 
         //validates if cell was already revealed or flagged for idempotency response
         if (cell.isVisible() || cell.isFlagged())
@@ -217,8 +220,7 @@ public class BoardServiceImpl implements BoardService {
 
         //validates if cell is mined then Game Over!
         if (cell.isMined()) {
-            board.setStatus(BoardStatusEnum.LOST);
-            board.setFinishDatetime(Instant.now());
+            board.finish(BoardStatusEnum.LOST);
             return;
         }
 
@@ -226,7 +228,7 @@ public class BoardServiceImpl implements BoardService {
 
         //validates if all cells was revealed then Won Game!
         if (board.wasAllCellsRevealed()) {
-            board.setStatus(BoardStatusEnum.WON);
+            board.finish(BoardStatusEnum.WON);
             return;
         }
 
@@ -234,26 +236,20 @@ public class BoardServiceImpl implements BoardService {
         if (cell.getMinesAround() > 0)
             return;
 
-        for (int nearRow = Math.max(0, position.getRow() - 1); nearRow <= Math.min(position.getRow() + 1, board.getRowSize() - 1); nearRow++) {
-            for (int nearCol = Math.max(0, position.getCol() - 1); nearCol <= Math.min(position.getCol() + 1, board.getColSize() - 1); nearCol++) {
-                Position nearPosition = new Position(nearRow, nearCol);
-                revealCell(board, nearPosition);
+        for (int nearbyRow = Math.max(0, row - 1); nearbyRow <= Math.min(row + 1, board.getRowSize() - 1); nearbyRow++) {
+            for (int nearbyCol = Math.max(0, col - 1); nearbyCol <= Math.min(col + 1, board.getColSize() - 1); nearbyCol++) {
+                revealCell(board, nearbyRow, nearbyCol);
             }
         }
     }
 
     private User getUser(String username) {
-
-        User user = userService.getUser(username);
-        if (isNull(user))
-            throw new NotFoundException(String.format("User '%s' not found", username));
-        logger.info(String.format("user finded:  %s", user.toString()));
-        return user;
+        return userService.getUserByUsername(username);
     }
 
     private Board getBoard(String boardId, User user) {
 
-        Board board = getBoardByIdAndUsername(boardId, user.getId());
+        Board board = getBoardByIdAndUsername(boardId, user.getUsername());
         if (isNull(board))
             throw new NotFoundException(String.format("Board '%s' not found", boardId));
         logger.info(String.format("board finded: %s", board.toString()));

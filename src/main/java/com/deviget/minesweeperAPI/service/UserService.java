@@ -6,5 +6,5 @@ public interface UserService {
 
     User createUser(String username, String email, String password);
 
-    User getUser(String id);
+    User getUserByUsername(String username);
 }

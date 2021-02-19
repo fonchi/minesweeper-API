@@ -6,22 +6,25 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class Cell {
 
-    private Position position;
+    private int row;
+    private int col;
     private CellStatusEnum status;
     private boolean isMined;
     private int minesAround;
 
-    public Cell(CellStatusEnum status, Position pos) {
+    public Cell(CellStatusEnum status, int row, int col) {
         this.status = status;
-        this.position = pos;
+        this.row = row;
+        this.col = col;
     }
 
-    public static Cell newHidden(Position pos) {
-        return new Cell(CellStatusEnum.HIDDEN, pos);
+    public static Cell newHidden(int row, int col) {
+        return new Cell(CellStatusEnum.HIDDEN, row, col);
     }
 
     public void incrementMinesAround() {
@@ -38,5 +41,9 @@ public class Cell {
 
     public boolean isHidden() {
         return CellStatusEnum.HIDDEN.equals(status);
+    }
+
+    public static String getKey(int row, int col) {
+        return String.format("(%s,%s)", row, col);
     }
 }
