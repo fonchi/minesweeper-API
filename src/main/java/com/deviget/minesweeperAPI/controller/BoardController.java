@@ -93,6 +93,7 @@ public class BoardController {
 
         Board board = boardService.getBoardByIdAndUsername(boardId, username);
         logger.info("Board: " + board.toString());
+        board.drawGrid();
 
         BoardResponseDto responseDto = BoardResponseDto.fromEntity(board);
         logger.info("BoardResponseDto: " + responseDto);

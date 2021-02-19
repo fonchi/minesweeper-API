@@ -2,10 +2,7 @@ package com.deviget.minesweeperAPI.domain;
 
 import com.deviget.minesweeperAPI.enumeration.BoardStatusEnum;
 import com.deviget.minesweeperAPI.util.GridDrawer;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -16,12 +13,14 @@ import static java.util.Objects.isNull;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
 public class Board {
 
     private String id;
     private User user;
-    private Map<Position, Cell> grid;
+    private Map<String, Cell> grid;
     private int rowSize;
     private int colSize;
     private int minesAmount;
@@ -30,7 +29,6 @@ public class Board {
     private Instant startedDatetime;
     private Instant finishDatetime;
     private BoardStatusEnum status;
-    private int attempts;
 
     public void incrementRevealedMines() {
         revealedMines++;
@@ -51,9 +49,14 @@ public class Board {
             status = BoardStatusEnum.PLAYING;
     }
 
-    public float getGameSecondsElapsed() {
+    public void finish(BoardStatusEnum status) {
+        this.status = status;
+        this.finishDatetime = Instant.now();
+    }
+
+    public long getGameSecondsElapsed() {
         Instant lastDatetime = isNull(finishDatetime) ? Instant.now() : finishDatetime;
-        return ChronoUnit.MILLIS.between(startedDatetime, lastDatetime) / 1000;
+        return ChronoUnit.SECONDS.between(startedDatetime, lastDatetime);
     }
 
     public boolean wasWon() {

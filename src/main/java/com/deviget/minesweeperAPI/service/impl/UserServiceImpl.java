@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -25,7 +26,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(String username, String email, String password) {
 
-        User user = User.builder()
+        //Check idempotency
+        User user = userRepository.findByUsername(username);
+        if (nonNull(user))
+            return user;
+
+        user = User.builder()
                 .id(UniqueIdGenerator.generate())
                 .username(username)
                 .email(email)
@@ -45,7 +51,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByUsername(String username) {
 
-        User user = userRepository.getByUsername(username);
+        User user = userRepository.findByUsername(username);
         if (isNull(user))
             throw new NotFoundException(String.format("User '%s' not found", username));
         logger.info(String.format("user finded:  %s", user.toString()));

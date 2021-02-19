@@ -2,8 +2,6 @@ package com.deviget.minesweeperAPI.util;
 
 import com.deviget.minesweeperAPI.domain.Board;
 import com.deviget.minesweeperAPI.domain.Cell;
-import com.deviget.minesweeperAPI.domain.Position;
-import com.deviget.minesweeperAPI.enumeration.CellStatusEnum;
 
 public class GridDrawer {
 
@@ -13,7 +11,7 @@ public class GridDrawer {
         System.out.print("\nValues:\n");
         for (int row = 0; row < rowSize; row++) {
             for (int col = 0; col < colSize; col++) {
-                Cell cell = board.getGrid().get(new Position(row, col));
+                Cell cell = board.getGrid().get(Cell.getKey(row, col));
                 if (cell.isMined())
                     System.out.print(" *");
                 else
@@ -25,7 +23,7 @@ public class GridDrawer {
         System.out.println("Interface:");
         for (int row = 0; row < rowSize; row++) {
             for (int col = 0; col < colSize; col++) {
-                Cell cell = board.getGrid().get(new Position(row, col));
+                Cell cell = board.getGrid().get(Cell.getKey(row, col));
                 if (cell.isVisible()) {
                     if (cell.isMined())
                         System.out.print(" *");
