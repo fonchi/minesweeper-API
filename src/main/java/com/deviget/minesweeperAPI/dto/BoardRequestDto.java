@@ -12,10 +12,10 @@ import javax.validation.constraints.Min;
 @ToString
 public class BoardRequestDto {
 
-    @Min(value = 1, message = "row_size should not be less than 1")
+    @Min(value = 2, message = "row_size should not be less than 2")
     @JsonProperty("row_size")
     private int rowSize;
-    @Min(value = 1, message = "col_size should not be less than 1")
+    @Min(value = 2, message = "col_size should not be less than 2")
     @JsonProperty("col_size")
     private int colSize;
     @Min(value = 1, message = "mines_amount should not be less than 1")

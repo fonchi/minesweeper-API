@@ -6,6 +6,7 @@ import com.deviget.minesweeperAPI.domain.User;
 import com.deviget.minesweeperAPI.enumeration.CellStatusEnum;
 import com.deviget.minesweeperAPI.error.BadRequestException;
 import com.deviget.minesweeperAPI.error.NotFoundException;
+import com.deviget.minesweeperAPI.lock.Lock;
 import com.deviget.minesweeperAPI.lock.LockService;
 import com.deviget.minesweeperAPI.repository.BoardRepository;
 import com.deviget.minesweeperAPI.service.BoardService;
@@ -33,7 +34,6 @@ public class BoardServiceImpl implements BoardService {
     private BoardRepository boardRepository;
 
     /**
-     *
      * @param username
      * @param rowSize
      * @param colSize
@@ -57,7 +57,6 @@ public class BoardServiceImpl implements BoardService {
     }
 
     /**
-     *
      * @param username
      * @param boardId
      * @param rowNumber
@@ -72,17 +71,17 @@ public class BoardServiceImpl implements BoardService {
         if (board.wasWon() || board.wasLost())
             return board;
 
-        //locks board using try with resources
-//        try (BoardLock lock = lockService.lock(board)) {
-        gameEngineService.revealCell(board, rowNumber, colNumber);
-//        }
-        logger.info(String.format("board after revealCell: %s", board.toString()));
-
+        Lock lock = lockService.lock(board.getId());
+        try {
+            gameEngineService.revealCell(board, rowNumber, colNumber);
+            logger.info(String.format("board after cell revealed: %s", board.toString()));
+        } finally {
+            lockService.unlock(lock);
+        }
         return saveBoard(board);
     }
 
     /**
-     *
      * @param username
      * @param boardId
      * @param rowNumber
@@ -97,16 +96,18 @@ public class BoardServiceImpl implements BoardService {
         if (board.wasWon() | board.wasLost())
             return board;
 
-        //locks board using try with resources
-//        try (BoardLock lock = lockService.lock(board)) {
-        String cellKey = Cell.getKey(rowNumber, colNumber);
-        Cell cell = board.getGrid().get(cellKey);
-        if (!cell.isFlagged()) {
-            cell.setStatus(CellStatusEnum.FLAGGED);
-            saveBoard(board);
+        Lock lock = lockService.lock(board.getId());
+        try {
+            String cellKey = Cell.getKey(rowNumber, colNumber);
+            Cell cell = board.getGrid().get(cellKey);
+            if (!cell.isVisible() && !cell.isFlagged()) {
+                cell.setStatus(CellStatusEnum.FLAGGED);
+                saveBoard(board);
+                logger.info(String.format("board after cell flagged: %s", board.toString()));
+            }
+        } finally {
+            lockService.unlock(lock);
         }
-//        }
-
         return board;
     }
 
@@ -128,7 +129,6 @@ public class BoardServiceImpl implements BoardService {
     }
 
     /**
-     *
      * @param board
      * @return
      */
@@ -139,7 +139,6 @@ public class BoardServiceImpl implements BoardService {
     }
 
     /**
-     *
      * @param mines
      * @param rows
      * @param cols
@@ -152,7 +151,6 @@ public class BoardServiceImpl implements BoardService {
     }
 
     /**
-     *
      * @param row
      * @param col
      * @param board
