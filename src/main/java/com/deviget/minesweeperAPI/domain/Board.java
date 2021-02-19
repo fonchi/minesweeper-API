@@ -2,10 +2,12 @@ package com.deviget.minesweeperAPI.domain;
 
 import com.deviget.minesweeperAPI.enumeration.BoardStatusEnum;
 import com.deviget.minesweeperAPI.util.GridDrawer;
+import com.deviget.minesweeperAPI.util.UniqueIdGenerator;
 import lombok.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
@@ -65,5 +67,47 @@ public class Board {
 
     public boolean wasLost() {
         return BoardStatusEnum.LOST.equals(status);
+    }
+
+    /**
+     * builds board based on configuration params
+     *
+     * @param user
+     * @param rowSize
+     * @param colSize
+     * @param minesAmount
+     * @return
+     */
+    public static Board buildBoard(User user, int rowSize, int colSize, int minesAmount) {
+
+        return Board.builder()
+                .id(UniqueIdGenerator.generate())
+                .user(user)
+                .rowSize(rowSize)
+                .colSize(colSize)
+                .minesAmount(minesAmount)
+                .creationDatetime(Instant.now())
+                .status(BoardStatusEnum.NEW)
+                .grid(createGrid(rowSize, colSize))
+                .build();
+    }
+
+    /**
+     * creates rowSize x colSize grid with hidden cells
+     *
+     * @param rowSize
+     * @param colSize
+     * @return
+     */
+    private static Map<String, Cell> createGrid(int rowSize, int colSize) {
+
+        Map<String, Cell> grid = new LinkedHashMap<>();
+        for (int i = 0; i < rowSize; i++) {
+            for (int j = 0; j < colSize; j++) {
+                String key = Cell.getKey(i, j);
+                grid.put(key, Cell.newHidden(i, j));
+            }
+        }
+        return grid;
     }
 }

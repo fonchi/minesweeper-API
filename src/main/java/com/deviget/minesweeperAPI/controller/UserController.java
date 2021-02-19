@@ -40,4 +40,6 @@ public class UserController {
         logger.info("UserResponseDto: " + responseDto);
         return ResponseEntity.ok(responseDto);
     }
+
+    //TODO GET User By Username
 }
