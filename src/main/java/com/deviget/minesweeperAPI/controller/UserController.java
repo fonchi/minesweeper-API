@@ -3,7 +3,7 @@ package com.deviget.minesweeperAPI.controller;
 import com.deviget.minesweeperAPI.domain.User;
 import com.deviget.minesweeperAPI.dto.UserRequestDto;
 import com.deviget.minesweeperAPI.dto.UserResponseDto;
-import com.deviget.minesweeperAPI.error.ServerException;
+import com.deviget.minesweeperAPI.error.InternalServerException;
 import com.deviget.minesweeperAPI.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class UserController {
 
         User user = userService.createUser(dto.getUsername(), dto.getEmail(), dto.getPassword());
         if (isNull(user))
-            throw new ServerException("Error to create user");
+            throw new InternalServerException("Error to create user");
         logger.info("User created: " + user.toString());
 
         UserResponseDto responseDto = UserResponseDto.fromEntity(user);

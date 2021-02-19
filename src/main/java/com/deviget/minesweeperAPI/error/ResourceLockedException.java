@@ -1,15 +1,17 @@
 package com.deviget.minesweeperAPI.error;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-public class BadRequestException extends RuntimeException {
+@Getter
+public class ResourceLockedException extends RuntimeException {
 
     private static final long serialVersionUID = -4486285316041419025L;
 
-    public static final String ERROR = "Bad request error";
-    public static final HttpStatus STATUS = HttpStatus.BAD_REQUEST;
+    public static final String ERROR = "Resource locked error";
+    public static final HttpStatus STATUS = HttpStatus.LOCKED;
 
-    public BadRequestException(String message) {
+    public ResourceLockedException(String message) {
         super(message);
     }
 
