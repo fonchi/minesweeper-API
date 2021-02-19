@@ -8,9 +8,9 @@ public interface BoardService {
 
     Board revealCell(String userId, String boardId, int rowNumber, int colNumber);
 
-    Board addFlag(String userId, int rowNumber, int colNumber);
+    Board flagCell(String userId, String boardId, int rowNumber, int colNumber);
 
-    Board getBoard(String id);
+    Board getBoardByIdAndUserId(String id, String userId);
 
     Board saveBoard(Board board);
 }

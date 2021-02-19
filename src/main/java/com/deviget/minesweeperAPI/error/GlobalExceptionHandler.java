@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Global Handler Exception Class to manage the error responses
+ * Global Handler Exception Class to manage error responses
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -54,7 +54,20 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handle BadCredentialsException
+     * Handle BadRequestException
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<?> handleBadRequestException(BadRequestException e) {
+        ErrorDto result = new ErrorDto(HttpStatus.BAD_REQUEST.value(), "Bad Request Error", e.getClass().getName(), e.getMessage());
+        logger.error("Bad Request Error: " + e.getMessage(), e);
+        return new ResponseEntity<ErrorDto>(result, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle NotFoundException
      *
      * @param e
      * @return
@@ -67,7 +80,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handle the rest of the Exceptions
+     * Handle default exceptions
      *
      * @param e
      * @return

@@ -1,7 +1,7 @@
 package com.deviget.minesweeperAPI.domain;
 
 import com.deviget.minesweeperAPI.enumeration.BoardStatusEnum;
-import com.deviget.minesweeperAPI.enumeration.CellStatusEnum;
+import com.deviget.minesweeperAPI.util.GridDrawer;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,55 +36,31 @@ public class Board {
         revealedMines++;
     }
 
-    public boolean allCellsRevealed() {
+    public boolean wasAllCellsRevealed() {
         return revealedMines + minesAmount == rowSize * colSize;
     }
 
     public void drawGrid() {
-        System.out.print("\nValues:\n");
-        for (int row = 0; row < rowSize; row++) {
-            for (int col = 0; col < colSize; col++) {
-                Cell cell = grid.get(new Position(row, col));
-                if (cell.isMined())
-                    System.out.print(" *");
-                else
-                    System.out.print(" " + cell.getMinesAround());
-            }
-            System.out.println();
-        }
-        System.out.println();
-        System.out.println("Interface:");
-        for (int row = 0; row < rowSize; row++) {
-            for (int col = 0; col < colSize; col++) {
-                Cell cell = grid.get(new Position(row, col));
-                if (CellStatusEnum.VISIBLE.equals(cell.getStatus())) {
-                    if (cell.isMined())
-                        System.out.print(" *");
-                    else if (cell.getMinesAround() > 0)
-                        System.out.print(" " + cell.getMinesAround());
-                    else
-                        System.out.print(" 0");
-                }
-                if (CellStatusEnum.HIDDEN.equals(cell.getStatus()))
-                    System.out.print(" #");
-                if (CellStatusEnum.FLAGGED.equals(cell.getStatus()))
-                    System.out.print(" F");
-            }
-            System.out.println();
-        }
-        System.out.println();
-        System.out.println("Status: " + status.getValue().toUpperCase() + "!\n");
+        GridDrawer.draw(this);
     }
 
     public void start() {
         if (isNull(startedDatetime))
             startedDatetime = Instant.now();
-        if (BoardStatusEnum.CREATED.equals(status))
+        if (BoardStatusEnum.NEW.equals(status))
             status = BoardStatusEnum.PLAYING;
     }
 
     public float getGameSecondsElapsed() {
         Instant lastDatetime = isNull(finishDatetime) ? Instant.now() : finishDatetime;
         return ChronoUnit.MILLIS.between(startedDatetime, lastDatetime) / 1000;
+    }
+
+    public boolean wasWon() {
+        return BoardStatusEnum.WON.equals(status);
+    }
+
+    public boolean wasLost() {
+        return BoardStatusEnum.LOST.equals(status);
     }
 }

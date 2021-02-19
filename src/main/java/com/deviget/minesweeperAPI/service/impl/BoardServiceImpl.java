@@ -6,8 +6,8 @@ import com.deviget.minesweeperAPI.domain.Position;
 import com.deviget.minesweeperAPI.domain.User;
 import com.deviget.minesweeperAPI.enumeration.BoardStatusEnum;
 import com.deviget.minesweeperAPI.enumeration.CellStatusEnum;
+import com.deviget.minesweeperAPI.error.BadRequestException;
 import com.deviget.minesweeperAPI.error.NotFoundException;
-import com.deviget.minesweeperAPI.lock.BoardLock;
 import com.deviget.minesweeperAPI.lock.LockService;
 import com.deviget.minesweeperAPI.service.BoardService;
 import com.deviget.minesweeperAPI.service.UserService;
@@ -42,21 +42,21 @@ public class BoardServiceImpl implements BoardService {
 
         logger.info(String.format("createBoard params (userId: %s, rowSize: %s, colSize: %s, minesAmount: %s)", userId, rowSize, colSize, minesAmount));
 
+        //validates mines amount
+        int boardSize = rowSize * colSize;
+        if (minesAmount > boardSize)
+            throw new BadRequestException(String.format("minesAmount should not be bigger than %s", boardSize);
+
         User user = userService.getUser(userId);
         if (isNull(user))
             throw new NotFoundException(String.format("User '%s' not found", userId));
-
         logger.info(String.format("user finded:  %s", user.toString()));
 
         Board board = buildBoard(user, rowSize, colSize, minesAmount);
-
         logger.info(String.format("board builded: %s", board.toString()));
 
         initializeGrid(board);
-
         logger.info(String.format("board initialized: %s", board.toString()));
-
-        board.drawGrid();
 
         return saveBoard(board);
     }
@@ -64,45 +64,56 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Board revealCell(String userId, String boardId, int rowNumber, int colNumber) {
 
-        User user = userService.getUser(userId);
-        if (isNull(user))
-            throw new NotFoundException(String.format("User '%s' not found", userId));
-
-        logger.info(String.format("user finded:  %s", user.toString()));
-
-        Board board = getBoard(boardId);
-        if (isNull(board))
-            throw new NotFoundException(String.format("Board '%s' not found", boardId));
-
-        logger.info(String.format("board finded: %s", board.toString()));
+        Board board = validateUserAndGetBoard(boardId, userId);
+        validateCoordinates(rowNumber, colNumber, board);
 
         //locks board using try with resources
 //        try (BoardLock lock = lockService.lock(board)) {
-            board.start();
-            Position selectedPos = new Position(rowNumber, colNumber);
-            revealCell(board, selectedPos);
+        if (board.wasWon() | board.wasLost())
+            return board;
+        board.start();
+        Position selectedPos = new Position(rowNumber, colNumber);
+        revealCell(board, selectedPos);
 //        }
-
         logger.info(String.format("board after revealCell: %s", board.toString()));
-
-        board.drawGrid();
 
         return saveBoard(board);
     }
 
     @Override
-    public Board addFlag(String userId, int rowNumber, int colNumber) {
-        return null;
+    public Board flagCell(String userId, String boardId, int rowNumber, int colNumber) {
+
+        Board board = validateUserAndGetBoard(boardId, userId);
+        validateCoordinates(rowNumber, colNumber, board);
+
+        if (rowNumber >= board.getRowSize())
+            throw new BadRequestException(String.format("rowNumber should be less than %s", board.getRowSize());
+        if (colNumber >= board.getColSize())
+            throw new BadRequestException(String.format("colNumber should be less than %s", board.getColSize());
+
+        if (board.wasWon() | board.wasLost())
+            return board;
+
+        //locks board using try with resources
+//        try (BoardLock lock = lockService.lock(board)) {
+        Cell cell = board.getGrid().get(new Position(rowNumber, colNumber));
+        if (!cell.isFlagged()) {
+            cell.setStatus(CellStatusEnum.FLAGGED);
+            board = saveBoard(board);
+        }
+//        }
+
+        return board;
     }
 
     /**
-     * finds board by id
+     * finds board by id and userId
      *
      * @param id
      * @return
      */
     @Override
-    public Board getBoard(String id) {
+    public Board getBoardByIdAndUserId(String id, String userId) {
         return savedBoard;
     }
 
@@ -130,7 +141,7 @@ public class BoardServiceImpl implements BoardService {
                 .colSize(colSize)
                 .minesAmount(minesAmount)
                 .creationDatetime(Instant.now())
-                .status(BoardStatusEnum.CREATED)
+                .status(BoardStatusEnum.NEW)
                 .grid(createGrid(rowSize, colSize))
                 .build();
     }
@@ -147,7 +158,8 @@ public class BoardServiceImpl implements BoardService {
         Map<Position, Cell> grid = new LinkedHashMap<>();
         for (int i = 0; i < rowSize; i++) {
             for (int j = 0; j < colSize; j++) {
-                grid.put(new Position(i, j), Cell.newHidden());
+                Position pos = new Position(i, j);
+                grid.put(pos, Cell.newHidden(pos));
             }
         }
         return grid;
@@ -205,18 +217,15 @@ public class BoardServiceImpl implements BoardService {
 
         Cell cell = board.getGrid().get(position);
 
-        //validates if cell was reveal for idempotency response
-        if (CellStatusEnum.VISIBLE.equals(cell.getStatus()))
-            return;
-
-        if (CellStatusEnum.FLAGGED.equals(cell.getStatus()))
+        //validates if cell was already revealed or flagged for idempotency response
+        if (cell.isVisible() || cell.isFlagged())
             return;
 
         cell.setStatus(CellStatusEnum.VISIBLE);
 
         //validates if cell is mined then Game Over!
         if (cell.isMined()) {
-            board.setStatus(BoardStatusEnum.OVER);
+            board.setStatus(BoardStatusEnum.LOST);
             board.setFinishDatetime(Instant.now());
             return;
         }
@@ -224,7 +233,7 @@ public class BoardServiceImpl implements BoardService {
         board.incrementRevealedMines();
 
         //validates if all cells was revealed then Won Game!
-        if (board.allCellsRevealed()) {
+        if (board.wasAllCellsRevealed()) {
             board.setStatus(BoardStatusEnum.WON);
             return;
         }
@@ -239,5 +248,27 @@ public class BoardServiceImpl implements BoardService {
                 revealCell(board, nearPosition);
             }
         }
+    }
+
+    private Board validateUserAndGetBoard(String boardId, String userId) {
+
+        User user = userService.getUser(userId);
+        if (isNull(user))
+            throw new NotFoundException(String.format("User '%s' not found", userId));
+        logger.info(String.format("user finded:  %s", user.toString()));
+
+        Board board = getBoardByIdAndUserId(boardId, userId);
+        if (isNull(board))
+            throw new NotFoundException(String.format("Board '%s' not found", boardId));
+        logger.info(String.format("board finded: %s", board.toString()));
+
+        return board;
+    }
+
+    private void validateCoordinates(int row, int col, Board board) {
+        if (row >= board.getRowSize())
+            throw new BadRequestException(String.format("rowNumber should be less than %s", board.getRowSize());
+        if (col >= board.getColSize())
+            throw new BadRequestException(String.format("colNumber should be less than %s", board.getColSize());
     }
 }

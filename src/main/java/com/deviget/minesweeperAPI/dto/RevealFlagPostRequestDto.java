@@ -10,7 +10,7 @@ import javax.validation.constraints.Min;
 @Getter
 @NoArgsConstructor
 @ToString
-public class BoardRevealPostRequestDto {
+public class RevealFlagPostRequestDto {
 
     @Min(value = 0, message = "selected_row_num should not be less than 0")
     @JsonProperty("selected_row_num")

@@ -14,7 +14,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class BoardRevealPostResponseDto {
+public class RevealFlagPostResponseDto {
 
     @JsonProperty("board_id")
     private String boardId;
@@ -35,12 +35,12 @@ public class BoardRevealPostResponseDto {
     @JsonProperty("board_cells")
     private List<CellDto> boardCells;
 
-    public static BoardRevealPostResponseDto fromEntity(Board board) {
+    public static RevealFlagPostResponseDto fromEntity(Board board) {
 
         List<CellDto> boardCells = new ArrayList<>();
         board.getGrid().entrySet().stream().forEach(entry -> boardCells.add(getCellDto(entry.getKey(), entry.getValue())));
 
-        return BoardRevealPostResponseDto.builder()
+        return RevealFlagPostResponseDto.builder()
                 .boardId(board.getId())
                 .selectedRowNum(board.getRowSize())
                 .selectedColNum(board.getColSize())
