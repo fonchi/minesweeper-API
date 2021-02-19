@@ -9,16 +9,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
+        //TODO implement persistency
         return null;
     }
 
     /**
      * finds user by id
+     *
      * @param id
      * @return
      */
     @Override
     public User getUser(String id) {
-        return null;
+        //TODO implement persistency
+        return User.builder().id(id).build();
     }
 }

@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CellStatusEnum {
-    HIDDEN("Hidden"),
-    FLAGGED("Flagged"),
-    VISIBLE("Visible");
+    HIDDEN("hidden"),
+    FLAGGED("flagged"),
+    VISIBLE("visible");
 
     private String value;
 }

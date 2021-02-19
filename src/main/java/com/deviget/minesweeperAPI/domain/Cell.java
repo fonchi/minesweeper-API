@@ -1,15 +1,13 @@
 package com.deviget.minesweeperAPI.domain;
 
 import com.deviget.minesweeperAPI.enumeration.CellStatusEnum;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
+@ToString
 public class Cell {
 
     private CellStatusEnum status;
