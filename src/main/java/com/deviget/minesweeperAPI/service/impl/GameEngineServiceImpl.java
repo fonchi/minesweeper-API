@@ -5,11 +5,10 @@ import com.deviget.minesweeperAPI.domain.Cell;
 import com.deviget.minesweeperAPI.enumeration.BoardStatusEnum;
 import com.deviget.minesweeperAPI.enumeration.CellStatusEnum;
 import com.deviget.minesweeperAPI.service.GameEngineService;
+import com.deviget.minesweeperAPI.util.RandomGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.Random;
 
 @Service
 public class GameEngineServiceImpl implements GameEngineService {
@@ -25,13 +24,11 @@ public class GameEngineServiceImpl implements GameEngineService {
     public void initializeBoardScenario(Board board) {
 
         int minesPlaced = 0;
-        Random random = new Random();
         while (minesPlaced < board.getMinesAmount()) {
             //generate a random number between 0 and size - 1
-            int randomRow = random.nextInt(board.getRowSize());
-            int randomCol = random.nextInt(board.getColSize());
-            String key = Cell.getKey(randomRow, randomCol);
-            Cell cell = board.getGrid().get(key);
+            int randomRow = RandomGenerator.generateRandomInt(board.getRowSize());
+            int randomCol = RandomGenerator.generateRandomInt(board.getColSize());
+            Cell cell = board.getGridCell(randomRow, randomCol);
             if (cell.isMined())
                 continue;
             cell.setMined(true);
@@ -52,27 +49,24 @@ public class GameEngineServiceImpl implements GameEngineService {
     public void revealCell(Board board, int row, int col) {
 
         board.start();
-
-        String cellKey = Cell.getKey(row, col);
-        Cell cell = board.getGrid().get(cellKey);
+        Cell cell = board.getGridCell(row, col);
 
         //validates if cell was already revealed or flagged for idempotency response
         if (cell.isVisible() || cell.isFlagged())
             return;
 
         cell.setStatus(CellStatusEnum.VISIBLE);
+        board.incrementRevealedCells();
 
-        //validates if cell is mined then Game Over!
-        if (cell.isMined()) {
-            board.finish(BoardStatusEnum.LOST);
+        //validates if all cells was revealed then Won Game!
+        if (board.wereAllCellsRevealed()) {
+            board.finish(BoardStatusEnum.WON);
             return;
         }
 
-        board.incrementRevealedMines();
-
-        //validates if all cells was revealed then Won Game!
-        if (board.wasAllCellsRevealed()) {
-            board.finish(BoardStatusEnum.WON);
+        //validates if cell is mined then Lost Game!
+        if (cell.isMined()) {
+            board.finish(BoardStatusEnum.LOST);
             return;
         }
 
@@ -98,8 +92,7 @@ public class GameEngineServiceImpl implements GameEngineService {
 
         for (int nearbyRow = Math.max(0, row - 1); nearbyRow <= Math.min(row + 1, board.getRowSize() - 1); nearbyRow++) {
             for (int nearbyCol = Math.max(0, col - 1); nearbyCol <= Math.min(col + 1, board.getColSize() - 1); nearbyCol++) {
-                String nearbyCellKey = Cell.getKey(nearbyRow, nearbyCol);
-                Cell nearbyCell = board.getGrid().get(nearbyCellKey);
+                Cell nearbyCell = board.getGridCell(nearbyRow, nearbyCol);
                 if (!nearbyCell.isMined()) {
                     nearbyCell.incrementMinesAround();
                 }

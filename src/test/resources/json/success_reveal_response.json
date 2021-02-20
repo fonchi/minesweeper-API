@@ -1,0 +1,75 @@
+{
+  "board_id": "8e2190a09d4545969576524f82bce29c",
+  "selected_row_num": 3,
+  "selected_col_num": 3,
+  "status": "playing",
+  "creation_datetime": "2021-02-19T00:00:00Z",
+  "started_datetime": "2021-02-19T00:00:30Z",
+  "finished_datetime": "2021-02-19T00:02:00Z",
+  "seconds_elapsed": 90,
+  "board_cells": [
+    {
+      "row": 0,
+      "col": 0,
+      "status": "hidden",
+      "minesAround": 0,
+      "mined": true
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "status": "hidden",
+      "minesAround": 1,
+      "mined": false
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "status": "hidden",
+      "minesAround": 0,
+      "mined": false
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "status": "hidden",
+      "minesAround": 1,
+      "mined": false
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "status": "visible",
+      "minesAround": 2,
+      "mined": false
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "status": "hidden",
+      "minesAround": 1,
+      "mined": false
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "status": "hidden",
+      "minesAround": 0,
+      "mined": false
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "status": "hidden",
+      "minesAround": 1,
+      "mined": false
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "status": "hidden",
+      "minesAround": 0,
+      "mined": true
+    }
+  ]
+}
