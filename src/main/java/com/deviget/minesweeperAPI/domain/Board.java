@@ -1,6 +1,8 @@
 package com.deviget.minesweeperAPI.domain;
 
 import com.deviget.minesweeperAPI.enumeration.BoardStatusEnum;
+import com.deviget.minesweeperAPI.enumeration.CellStatusEnum;
+import com.deviget.minesweeperAPI.error.InternalServerException;
 import com.deviget.minesweeperAPI.util.GridDrawer;
 import com.deviget.minesweeperAPI.util.UniqueIdGenerator;
 import lombok.*;
@@ -19,7 +21,7 @@ import static java.util.Objects.isNull;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class Board {
+public class Board implements Cloneable {
 
     private String id;
     private User user;
@@ -27,7 +29,7 @@ public class Board {
     private int rowSize;
     private int colSize;
     private int minesAmount;
-    private int revealedMines;
+    private int revealedCells;
     private Instant creationDatetime;
     private Instant startedDatetime;
     private Instant finishDatetime;
@@ -38,12 +40,12 @@ public class Board {
         return grid.get(cellKey);
     }
 
-    public void incrementRevealedMines() {
-        revealedMines++;
+    public void incrementRevealedCells() {
+        revealedCells++;
     }
 
-    public boolean wasAllCellsRevealed() {
-        return revealedMines + minesAmount == rowSize * colSize;
+    public boolean wereAllCellsRevealed() {
+        return revealedCells + minesAmount == rowSize * colSize;
     }
 
     public void drawGrid() {
@@ -60,6 +62,10 @@ public class Board {
     public void finish(BoardStatusEnum status) {
         this.status = status;
         this.finishDatetime = Instant.now();
+        if (wasWon())
+            flagAllMines();
+        if (wasLost())
+            showAllMines();
     }
 
     public long getGameSecondsElapsed() {
@@ -115,5 +121,24 @@ public class Board {
             }
         }
         return grid;
+    }
+
+    private void flagAllMines() {
+        grid.entrySet().stream().filter(entry -> entry.getValue().isMined())
+                .forEach(entry -> entry.getValue().setStatus(CellStatusEnum.FLAGGED));
+    }
+
+    private void showAllMines() {
+        grid.entrySet().stream().filter(entry -> entry.getValue().isMined())
+                .forEach(entry -> entry.getValue().setStatus(CellStatusEnum.VISIBLE));
+    }
+
+    @Override
+    public Board clone() {
+        try {
+            return (Board) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new InternalServerException("Cannot clone board object. Error detail: " + e.getMessage());
+        }
     }
 }

@@ -58,7 +58,7 @@ public class BoardServiceTest {
             int col = invocation.getArgument(2);
             toRevealBoard.start();
             toRevealBoard.getGridCell(row, col).setStatus(CellStatusEnum.VISIBLE);
-            toRevealBoard.incrementRevealedMines();
+            toRevealBoard.incrementRevealedCells();
             return null;
         }).when(gameEngineServiceMock).revealCell(board, 1, 1);
 
@@ -72,9 +72,9 @@ public class BoardServiceTest {
     public void givenValidConfigParams_whenCreateBoard_thenBoardSuccessfullyCreated() {
 
         //Setup
-        int rows = 2;
-        int cols = 2;
-        int mines = 1;
+        int rows = 3;
+        int cols = 3;
+        int mines = 2;
         Board board = TestUtil.buildInitializedBoard(user);
 
         //Execute
@@ -88,8 +88,8 @@ public class BoardServiceTest {
     public void givenZeroMinesAmount_whenCreateBoard_thenBadRequestException() {
 
         //Setup
-        int rows = 2;
-        int cols = 2;
+        int rows = 3;
+        int cols = 3;
         int mines = 0;
 
         //Execute and Verify
@@ -101,9 +101,9 @@ public class BoardServiceTest {
     public void givenInvalidMinesAmount_whenCreateBoard_thenBadRequestException() {
 
         //Setup
-        int rows = 2;
-        int cols = 2;
-        int mines = 4;
+        int rows = 3;
+        int cols = 3;
+        int mines = 10;
 
         //Execute and Verify
         Exception e = assertThrows(BadRequestException.class, () -> boardService.createBoard(user.getUsername(), rows, cols, mines));
@@ -115,9 +115,9 @@ public class BoardServiceTest {
 
         //Setup
         String invalidUsername = "invalid-username";
-        int rows = 2;
-        int cols = 2;
-        int mines = 1;
+        int rows = 3;
+        int cols = 3;
+        int mines = 2;
 
         //Mock
         when(userServiceMock.getUserByUsername(invalidUsername)).thenReturn(null);
@@ -131,7 +131,7 @@ public class BoardServiceTest {
     public void givenInvalidRowPosition_whenRevealCell_thenBadRequestException() {
 
         //Setup
-        int row = 2;
+        int row = 3;
         int col = 0;
         Board board = TestUtil.buildInitializedBoard(user);
 
@@ -145,7 +145,7 @@ public class BoardServiceTest {
 
         //Setup
         int row = 0;
-        int col = 2;
+        int col = 3;
         Board board = TestUtil.buildInitializedBoard(user);
 
         //Execute and Verify

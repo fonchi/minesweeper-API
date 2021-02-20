@@ -24,46 +24,39 @@ public class TestUtil {
 
     public static Board buildInitializedBoard(User user) {
 
-        // |* 1|
-        // |1 1|
+        // Board grid shape:
+        // |* 1 0|
+        // |1 2 1|
+        // |0 1 *|
         LinkedHashMap<String, Cell> grid = new LinkedHashMap<>();
         grid.put("(0,0)", new Cell(0, 0, CellStatusEnum.HIDDEN, true, 0));
         grid.put("(0,1)", new Cell(0, 1, CellStatusEnum.HIDDEN, false, 1));
+        grid.put("(0,2)", new Cell(0, 2, CellStatusEnum.HIDDEN, false, 0));
         grid.put("(1,0)", new Cell(1, 0, CellStatusEnum.HIDDEN, false, 1));
-        grid.put("(1,1)", new Cell(1, 1, CellStatusEnum.HIDDEN, false, 1));
+        grid.put("(1,1)", new Cell(1, 1, CellStatusEnum.HIDDEN, false, 2));
+        grid.put("(1,2)", new Cell(1, 2, CellStatusEnum.HIDDEN, false, 1));
+        grid.put("(2,0)", new Cell(2, 0, CellStatusEnum.HIDDEN, false, 0));
+        grid.put("(2,1)", new Cell(2, 1, CellStatusEnum.HIDDEN, false, 1));
+        grid.put("(2,2)", new Cell(2, 2, CellStatusEnum.HIDDEN, true, 0));
 
-        Board board = Board.builder()
+        return Board.builder()
                 .id("8e2190a09d4545969576524f82bce29c")
                 .user(user)
-                .rowSize(2)
-                .colSize(2)
-                .minesAmount(1)
+                .rowSize(3)
+                .colSize(3)
+                .minesAmount(2)
                 .status(BoardStatusEnum.NEW)
                 .creationDatetime(getSpecificTime())
                 .grid(grid)
                 .build();
-
-        board.drawGrid();
-        return board;
-    }
-
-    public static Board buildInitializedBoard() {
-
-        User user = buildUser();
-        return buildInitializedBoard(user);
     }
 
     public static Board buildEmptyBoard(User user) {
 
-        Board board = Board.buildBoard(user, 2, 2, 1);
-        board.drawGrid();
+        Board board = Board.buildBoard(user, 3, 3, 2);
+        board.setId("8e2190a09d4545969576524f82bce29c");
+        board.setCreationDatetime(getSpecificTime());
         return board;
-    }
-
-    public static Board buildEmptyBoard() {
-
-        User user = buildUser();
-        return buildEmptyBoard(user);
     }
 
     private static Instant getSpecificTime() {
