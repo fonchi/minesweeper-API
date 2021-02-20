@@ -46,7 +46,7 @@ public class BoardServiceImpl implements BoardService {
         logger.info(String.format("createBoard params (username: %s, rowSize: %s, colSize: %s, minesAmount: %s)", username, rowSize, colSize, minesAmount));
         validateMinesAmount(minesAmount, rowSize, colSize);
 
-        User user = userService.getUserByUsername(username);
+        User user = getUser(username);
         Board board = Board.buildBoard(user, rowSize, colSize, minesAmount);
         logger.info(String.format("board builded: %s", board.toString()));
 
@@ -98,8 +98,7 @@ public class BoardServiceImpl implements BoardService {
 
         Lock lock = lockService.lock(board.getId());
         try {
-            String cellKey = Cell.getKey(rowNumber, colNumber);
-            Cell cell = board.getGrid().get(cellKey);
+            Cell cell = board.getGridCell(rowNumber, colNumber);
             if (!cell.isVisible() && !cell.isFlagged()) {
                 cell.setStatus(CellStatusEnum.FLAGGED);
                 saveBoard(board);
@@ -120,7 +119,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Board getBoardByIdAndUsername(String id, String username) {
 
-        User user = userService.getUserByUsername(username);
+        User user = getUser(username);
         Board board = boardRepository.findByIdAndUserId(id, user.getId());
         if (isNull(board))
             throw new NotFoundException(String.format("Board '%s' not found", id));
@@ -138,6 +137,14 @@ public class BoardServiceImpl implements BoardService {
         return boardRepository.save(board);
     }
 
+    private User getUser(String username) {
+
+        User user = userService.getUserByUsername(username);
+        if (isNull(user))
+            throw new NotFoundException(String.format("User '%s' not found", username));
+        return user;
+    }
+
     /**
      * @param mines
      * @param rows
@@ -146,8 +153,8 @@ public class BoardServiceImpl implements BoardService {
     private void validateMinesAmount(int mines, int rows, int cols) {
 
         int boardSize = rows * cols;
-        if (mines > boardSize)
-            throw new BadRequestException(String.format("minesAmount should not be bigger than %s", boardSize));
+        if (mines < 1 || mines >= boardSize)
+            throw new BadRequestException(String.format("minesAmount should be a positive or less than %s", boardSize));
     }
 
     /**
@@ -157,9 +164,9 @@ public class BoardServiceImpl implements BoardService {
      */
     private void validateCoordinates(int row, int col, Board board) {
 
-        if (row >= board.getRowSize())
-            throw new BadRequestException(String.format("rowNumber should be less than %s", board.getRowSize()));
-        if (col >= board.getColSize())
-            throw new BadRequestException(String.format("colNumber should be less than %s", board.getColSize()));
+        if (row < 0 || row >= board.getRowSize())
+            throw new BadRequestException(String.format("rowNumber should be bigger than zero and less than %s", board.getRowSize()));
+        if (col < 0 || col >= board.getColSize())
+            throw new BadRequestException(String.format("colNumber should be bigger than zero and less than %s", board.getColSize()));
     }
 }

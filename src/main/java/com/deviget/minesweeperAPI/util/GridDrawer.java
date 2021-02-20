@@ -11,7 +11,7 @@ public class GridDrawer {
         System.out.print("\nValues:\n");
         for (int row = 0; row < rowSize; row++) {
             for (int col = 0; col < colSize; col++) {
-                Cell cell = board.getGrid().get(Cell.getKey(row, col));
+                Cell cell = board.getGridCell(row, col);
                 if (cell.isMined())
                     System.out.print(" *");
                 else
@@ -23,7 +23,7 @@ public class GridDrawer {
         System.out.println("Interface:");
         for (int row = 0; row < rowSize; row++) {
             for (int col = 0; col < colSize; col++) {
-                Cell cell = board.getGrid().get(Cell.getKey(row, col));
+                Cell cell = board.getGridCell(row, col);
                 if (cell.isVisible()) {
                     if (cell.isMined())
                         System.out.print(" *");

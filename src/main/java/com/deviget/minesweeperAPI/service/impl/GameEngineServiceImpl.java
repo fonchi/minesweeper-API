@@ -30,8 +30,7 @@ public class GameEngineServiceImpl implements GameEngineService {
             //generate a random number between 0 and size - 1
             int randomRow = random.nextInt(board.getRowSize());
             int randomCol = random.nextInt(board.getColSize());
-            String key = Cell.getKey(randomRow, randomCol);
-            Cell cell = board.getGrid().get(key);
+            Cell cell = board.getGridCell(randomRow, randomCol);
             if (cell.isMined())
                 continue;
             cell.setMined(true);
@@ -52,9 +51,7 @@ public class GameEngineServiceImpl implements GameEngineService {
     public void revealCell(Board board, int row, int col) {
 
         board.start();
-
-        String cellKey = Cell.getKey(row, col);
-        Cell cell = board.getGrid().get(cellKey);
+        Cell cell = board.getGridCell(row, col);
 
         //validates if cell was already revealed or flagged for idempotency response
         if (cell.isVisible() || cell.isFlagged())
@@ -98,8 +95,7 @@ public class GameEngineServiceImpl implements GameEngineService {
 
         for (int nearbyRow = Math.max(0, row - 1); nearbyRow <= Math.min(row + 1, board.getRowSize() - 1); nearbyRow++) {
             for (int nearbyCol = Math.max(0, col - 1); nearbyCol <= Math.min(col + 1, board.getColSize() - 1); nearbyCol++) {
-                String nearbyCellKey = Cell.getKey(nearbyRow, nearbyCol);
-                Cell nearbyCell = board.getGrid().get(nearbyCellKey);
+                Cell nearbyCell = board.getGridCell(nearbyRow, nearbyCol);
                 if (!nearbyCell.isMined()) {
                     nearbyCell.incrementMinesAround();
                 }

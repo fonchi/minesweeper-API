@@ -17,6 +17,7 @@ import static java.util.Objects.isNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @ToString
 public class Board {
 
@@ -31,6 +32,11 @@ public class Board {
     private Instant startedDatetime;
     private Instant finishDatetime;
     private BoardStatusEnum status;
+
+    public Cell getGridCell(int row, int col) {
+        String cellKey = Cell.getKey(row, col);
+        return grid.get(cellKey);
+    }
 
     public void incrementRevealedMines() {
         revealedMines++;
