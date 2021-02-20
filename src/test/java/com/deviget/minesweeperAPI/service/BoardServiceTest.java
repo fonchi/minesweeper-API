@@ -1,6 +1,6 @@
 package com.deviget.minesweeperAPI.service;
 
-import com.deviget.minesweeperAPI.TestUtil;
+import com.deviget.minesweeperAPI.TestUtils;
 import com.deviget.minesweeperAPI.domain.Board;
 import com.deviget.minesweeperAPI.domain.User;
 import com.deviget.minesweeperAPI.enumeration.BoardStatusEnum;
@@ -43,10 +43,10 @@ public class BoardServiceTest {
 
     @Before
     public void setUp() {
-        user = TestUtil.buildUser();
+        user = TestUtils.buildUser();
         when(userServiceMock.getUserByUsername(user.getUsername())).thenReturn(user);
 
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
         doAnswer(invocation -> {
             ((Board) invocation.getArgument(0)).setGrid(board.getGrid());
             return null;
@@ -75,7 +75,7 @@ public class BoardServiceTest {
         int rows = 3;
         int cols = 3;
         int mines = 2;
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
 
         //Execute
         Board result = boardService.createBoard(user.getUsername(), rows, cols, mines);
@@ -133,7 +133,7 @@ public class BoardServiceTest {
         //Setup
         int row = 3;
         int col = 0;
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
 
         //Execute and Verify
         Exception e = assertThrows(BadRequestException.class, () -> boardService.revealCell(user.getUsername(), board.getId(), row, col));
@@ -146,7 +146,7 @@ public class BoardServiceTest {
         //Setup
         int row = 0;
         int col = 3;
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
 
         //Execute and Verify
         Exception e = assertThrows(BadRequestException.class, () -> boardService.revealCell(user.getUsername(), board.getId(), row, col));
@@ -160,7 +160,7 @@ public class BoardServiceTest {
         String invalidUsername = "invalid-username";
         int row = 1;
         int col = 1;
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
 
         //Mock
         when(userServiceMock.getUserByUsername(invalidUsername)).thenReturn(null);
@@ -176,7 +176,7 @@ public class BoardServiceTest {
         //Setup
         int row = 1;
         int col = 1;
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
         board.setId("invalid-id");
 
         //Mock
@@ -193,7 +193,7 @@ public class BoardServiceTest {
         //Setup
         int row = 1;
         int col = 1;
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
         board.setId("won-board-id");
         board.setStatus(BoardStatusEnum.WON);
 
@@ -214,7 +214,7 @@ public class BoardServiceTest {
         //Setup
         int row = 1;
         int col = 1;
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
         board.setId("lost-board-id");
         board.setStatus(BoardStatusEnum.LOST);
 
@@ -235,7 +235,7 @@ public class BoardServiceTest {
         //Setup
         int row = 1;
         int col = 1;
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
 
         //Execute
         Board result = boardService.revealCell(user.getUsername(), board.getId(), row, col);
@@ -251,7 +251,7 @@ public class BoardServiceTest {
         //Setup
         int row = 1;
         int col = 1;
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
         board.setId("won-board-id");
         board.setStatus(BoardStatusEnum.WON);
 
@@ -273,7 +273,7 @@ public class BoardServiceTest {
         //Setup
         int row = 1;
         int col = 1;
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
         board.setId("lost-board-id");
         board.setStatus(BoardStatusEnum.LOST);
 
@@ -295,7 +295,7 @@ public class BoardServiceTest {
         //Setup
         int row = 0;
         int col = 0;
-        Board flaggedBoard = TestUtil.buildInitializedBoard(user);
+        Board flaggedBoard = TestUtils.buildInitializedBoard(user);
         flaggedBoard.getGridCell(row, col).setStatus(CellStatusEnum.FLAGGED);
 
         //Execute
@@ -311,7 +311,7 @@ public class BoardServiceTest {
         //Setup
         int row = 0;
         int col = 0;
-        Board flaggedBoard = TestUtil.buildInitializedBoard(user);
+        Board flaggedBoard = TestUtils.buildInitializedBoard(user);
         flaggedBoard.setId("already-flagged-board-id");
         flaggedBoard.getGridCell(row, col).setStatus(CellStatusEnum.FLAGGED);
 

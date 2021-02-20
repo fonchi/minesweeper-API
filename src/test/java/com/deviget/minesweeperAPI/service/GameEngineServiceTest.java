@@ -1,6 +1,6 @@
 package com.deviget.minesweeperAPI.service;
 
-import com.deviget.minesweeperAPI.TestUtil;
+import com.deviget.minesweeperAPI.TestUtils;
 import com.deviget.minesweeperAPI.domain.Board;
 import com.deviget.minesweeperAPI.domain.User;
 import com.deviget.minesweeperAPI.enumeration.BoardStatusEnum;
@@ -34,15 +34,15 @@ public class GameEngineServiceTest {
 
     @Before
     public void setUp() {
-        user = TestUtil.buildUser();
+        user = TestUtils.buildUser();
     }
 
     @Test
     public void givenEmptyBoard_whenInitializeBoardScenario_thenBoardUpdated() {
 
         //Setup
-        Board board = TestUtil.buildEmptyBoard(user);
-        Board exceptedBoard = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildEmptyBoard(user);
+        Board exceptedBoard = TestUtils.buildInitializedBoard(user);
 
         //Mock
         //mock random int generation static method to force that first to fourth invocations returns 0,
@@ -73,8 +73,8 @@ public class GameEngineServiceTest {
         //Setup
         int row = 0;
         int col = 2;
-        Board board = TestUtil.buildInitializedBoard(user);
-        Board expectedBoard = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
+        Board expectedBoard = TestUtils.buildInitializedBoard(user);
         expectedBoard.setStatus(BoardStatusEnum.PLAYING);
         expectedBoard.setRevealedCells(4);
         expectedBoard.getGridCell(0, 1).setStatus(CellStatusEnum.VISIBLE);
@@ -100,8 +100,8 @@ public class GameEngineServiceTest {
         //Setup
         int row = 2;
         int col = 1;
-        Board board = TestUtil.buildInitializedBoard(user);
-        Board expectedBoard = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
+        Board expectedBoard = TestUtils.buildInitializedBoard(user);
         expectedBoard.setStatus(BoardStatusEnum.PLAYING);
         expectedBoard.setRevealedCells(1);
         expectedBoard.getGridCell(2, 1).setStatus(CellStatusEnum.VISIBLE);
@@ -124,7 +124,7 @@ public class GameEngineServiceTest {
         //Setup
         int row = 2;
         int col = 1;
-        Board expectedBoard = TestUtil.buildInitializedBoard(user);
+        Board expectedBoard = TestUtils.buildInitializedBoard(user);
         expectedBoard.setStatus(BoardStatusEnum.PLAYING);
         expectedBoard.setRevealedCells(1);
         expectedBoard.getGridCell(2, 1).setStatus(CellStatusEnum.VISIBLE);
@@ -149,7 +149,7 @@ public class GameEngineServiceTest {
         //Setup
         int row = 2;
         int col = 2;
-        Board expectedBoard = TestUtil.buildInitializedBoard(user);
+        Board expectedBoard = TestUtils.buildInitializedBoard(user);
         expectedBoard.setStatus(BoardStatusEnum.PLAYING);
         expectedBoard.setRevealedCells(4);
         expectedBoard.getGridCell(0, 1).setStatus(CellStatusEnum.VISIBLE);
@@ -177,8 +177,8 @@ public class GameEngineServiceTest {
         //Setup
         int row = 0;
         int col = 0;
-        Board board = TestUtil.buildInitializedBoard(user);
-        Board expectedBoard = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
+        Board expectedBoard = TestUtils.buildInitializedBoard(user);
         expectedBoard.setStatus(BoardStatusEnum.LOST);
         expectedBoard.setRevealedCells(1);
         expectedBoard.getGridCell(0, 0).setStatus(CellStatusEnum.VISIBLE);
@@ -204,7 +204,7 @@ public class GameEngineServiceTest {
         int row = 2;
         int col = 0;
 
-        Board board = TestUtil.buildInitializedBoard(user);
+        Board board = TestUtils.buildInitializedBoard(user);
         board.setStatus(BoardStatusEnum.PLAYING);
         board.setRevealedCells(6);
         board.getGridCell(0, 0).setStatus(CellStatusEnum.FLAGGED);
@@ -219,7 +219,7 @@ public class GameEngineServiceTest {
         // |1 2 1|  |1 2 1|
         // |0 1 *|  |# 1 #|
 
-        Board expectedBoard = TestUtil.buildInitializedBoard(user);
+        Board expectedBoard = TestUtils.buildInitializedBoard(user);
         expectedBoard.setStatus(BoardStatusEnum.WON);
         expectedBoard.setRevealedCells(7);
         expectedBoard.getGridCell(0, 0).setStatus(CellStatusEnum.FLAGGED);

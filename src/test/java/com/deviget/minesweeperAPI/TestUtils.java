@@ -5,12 +5,23 @@ import com.deviget.minesweeperAPI.domain.Cell;
 import com.deviget.minesweeperAPI.domain.User;
 import com.deviget.minesweeperAPI.enumeration.BoardStatusEnum;
 import com.deviget.minesweeperAPI.enumeration.CellStatusEnum;
-import com.deviget.minesweeperAPI.util.TimeUtil;
+import com.deviget.minesweeperAPI.util.TimeUtils;
+import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 
-public class TestUtil {
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+public class TestUtils {
+
+    public static final String SUCCESS_BOARD_REQUEST = "/json/success_board_request.json";
+    public static final String SUCCESS_BOARD_RESPONSE = "/json/success_board_response.json";
+    public static final String SUCCESS_REVEAL_REQUEST = "/json/success_reveal_request.json";
+    public static final String SUCCESS_REVEAL_RESPONSE = "/json/success_reveal_response.json";
+    public static final String SUCCESS_FLAG_REQUEST = "/json/success_flag_request.json";
+    public static final String SUCCESS_FLAG_RESPONSE = "/json/success_flag_response.json";
 
     public static User buildUser() {
 
@@ -60,6 +71,41 @@ public class TestUtil {
     }
 
     private static Instant getSpecificTime() {
-        return TimeUtil.getInstant(2021, 02, 19, 00, 00, 00, 00);
+        return TimeUtils.getInstant(2021, 02, 19, 00, 00, 00, 00);
+    }
+
+    public static String getNewBoardRequest() throws Exception {
+        return loadFile(SUCCESS_BOARD_REQUEST);
+    }
+
+    public static String getNewBoardResponse() throws Exception {
+        return loadFile(SUCCESS_BOARD_RESPONSE);
+    }
+
+    public static String getRevealRequest() throws Exception {
+        return loadFile(SUCCESS_REVEAL_REQUEST);
+    }
+
+    public static String getRevealResponse() throws Exception {
+        return loadFile(SUCCESS_REVEAL_RESPONSE);
+    }
+
+    public static String getFlagRequest() throws Exception {
+        return loadFile(SUCCESS_FLAG_REQUEST);
+    }
+
+    public static String getFlagResponse() throws Exception {
+        return loadFile(SUCCESS_FLAG_RESPONSE);
+    }
+
+    /**
+     * Loads a resource text file
+     *
+     * @param
+     * @return
+     * @throws
+     */
+    public static String loadFile(String file) throws IOException {
+        return IOUtils.toString(TestUtils.class.getResourceAsStream(file), UTF_8);
     }
 }
