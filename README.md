@@ -42,3 +42,17 @@ Please email your solution as soon as you have completed the challenge or the ti
 
 ### Technical Design
 [Link to Doc](https://docs.google.com/document/d/1GO_OFCjk53R5oiUwtmjPYFcKrSu7DgZMuKycSv0OSEc/edit?usp=sharing)
+
+### How to Runs
+
+### Local
+Execute:
+mvn clean install
+mvn spring-boot:run -Dspring-boot.run.profiles=local
+
+### Docker
+Execute:
+mvn clean install
+./mvnw package
+docker build -t minesweeper-api-image .
+docker-compose up
