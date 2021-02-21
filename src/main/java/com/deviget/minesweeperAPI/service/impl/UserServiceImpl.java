@@ -1,6 +1,7 @@
 package com.deviget.minesweeperAPI.service.impl;
 
 import com.deviget.minesweeperAPI.domain.User;
+import com.deviget.minesweeperAPI.error.BadRequestException;
 import com.deviget.minesweeperAPI.error.NotFoundException;
 import com.deviget.minesweeperAPI.repository.UserRepository;
 import com.deviget.minesweeperAPI.service.UserService;
@@ -28,8 +29,11 @@ public class UserServiceImpl implements UserService {
 
         //Check idempotency
         User user = userRepository.findByUsername(username);
-        if (nonNull(user))
+        if (nonNull(user)) {
+            if (!user.areIdempotent(username, email))
+                throw new BadRequestException("Idempotency resource not matched");
             return user;
+        }
 
         user = User.builder()
                 .id(UniqueIdGenerator.generate())
