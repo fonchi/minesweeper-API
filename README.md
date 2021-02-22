@@ -314,8 +314,6 @@ CURL:
     	"selected_col_num": 0
     }'
 
-### Get User
-
 ### Get Board
 
 *Endpoint to get user game board*
@@ -371,6 +369,10 @@ CURL:
 
     curl --location --request GET 'https://avallone-minesweeper-api.herokuapp.com/users/test/boards/6ee81774efe04486b67a9f0d8e6b1fed'
 
+## API Documentation
+
+https://avallone-minesweeper-api.herokuapp.com/swagger-ui/
+
 ## Decisions Taken
 
 ### Framework & Programming Lenguage
@@ -394,7 +396,13 @@ It was used Docker for local deploy because it's a standard container platform (
 
 It was used Lombok to avoid repetitive code and make a cleaner code
   
-## Comments
+## Final Comments
+
+### Heroku Idling
+
+When you will test endpoints in heroku production deployment, maybe it has a delay on response time on first call. It's caused by dynos pausing and keep idling after app stop receiving traffic.
+
+One approach to solve it could be an adding ping endpoint and new relic addon to invoke it when monitor detects non-traffic.
 
 ### Possible Additional Features
 
@@ -402,7 +410,6 @@ It was used Lombok to avoid repetitive code and make a cleaner code
 - Endpoint DELETE User
 - Endpoint DELETE Board
 - Endpoint GET User Board Stats
-- API Documentation (using Swagger or Postman Collection)
 - User Authentication (using JWT and Spring Security)
 - Games User Limitation
 - Metrics and Dashboards (using DataDog or New Relic)
